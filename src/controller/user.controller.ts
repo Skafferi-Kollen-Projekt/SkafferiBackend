@@ -1,20 +1,24 @@
 import type { Request, Response, NextFunction } from "express";
 import * as userService from "../services/user.services";
-import { RegisterUserTypeZ } from "../models/user.model";
+import { CreateUserTypeZ } from "../models/user.model";
 
-// export const createUser = async (
-//   req: Request<{}, {}, RegisterUserTypeZ>,
-//   res: Response,
-//   next: NextFunction,
-// ) => {
-//   try {
-//     const data = req.body;
-//     const newUser = await userService.createUser(data);
-//     res.status(201).json(newUser);
-//   } catch (error) {
-//     next(error);
-//   }
-// };
+export const createUser = async (
+  req: Request<{}, {}, CreateUserTypeZ>,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const data = req.body;
+    const newUser = await userService.createUser(data);
+    if (!newUser) {
+      return res.status(500).json({ msg: "Failed to create user" });
+    }
+
+    res.status(201).json(newUser);
+  } catch (error) {
+    next(error);
+  }
+};
 
 export const getAllUser = async (
   req: Request,
@@ -29,46 +33,48 @@ export const getAllUser = async (
   }
 };
 
-// export const getUserById = async (
-//   req: Request<{ id: string }>,
-//   res: Response,
-//   next: NextFunction,
-// ) => {
-//   try {
-//     const user = await userService.getUserById(req.params.id);
+export const getUserById = async (
+  req: Request<{ id: string }>,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const id = Number(req.params.id);
+    const user = await userService.getUserById(id);
+    res.status(200).json(user);
+  } catch (error) {
+    next(error);
+  }
+};
 
-//     res.status(200).json(user);
-//   } catch (error) {
-//     next(error);
-//   }
-// };
+export const updateById = async (
+  req: Request<{ id: string }>,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const id = Number(req.params.id);
+    const changeUser = await userService.updateById(id, req.body);
+    if (!changeUser) {
+      return res.status(404).json({ msg: "User not found" });
+    }
+    res.status(200).json(changeUser);
+  } catch (error) {
+    next(error);
+  }
+};
 
-// export const updateById = async (
-//   req: Request<{ id: string }, {}, Partial<userService.Users>>,
-//   res: Response,
-//   next: NextFunction,
-// ) => {
-//   try {
-//     const changeUser = await userService.updateById(req.params.id, req.body);
-//     if (!changeUser) {
-//       return res.status(404).json({ msg: "User not found" });
-//     }
-//     res.status(200).json(changeUser);
-//   } catch (error) {
-//     next(error);
-//   }
-// };
+export const deleteById = async (
+  req: Request<{ id: string }>,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const id = Number(req.params.id);
+    const removeUser = await userService.deleteById(id);
 
-// export const deleteById = async (
-//   req: Request<{ id: string }>,
-//   res: Response,
-//   next: NextFunction,
-// ) => {
-//   try {
-//     const removeUser = await userService.deleteById(req.params.id);
-
-//     res.status(200).json({ msg: "User deleted successfully" });
-//   } catch (error) {
-//     next(error);
-//   }
-// };
+    res.status(200).json({ msg: "User deleted successfully" });
+  } catch (error) {
+    next(error);
+  }
+};

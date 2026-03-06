@@ -1,71 +1,88 @@
-import { UserDocument, UserModel } from "../models/user.model";
 import { AppError } from "../utils/app.error";
 import bcrypt from "bcrypt";
 import { prisma } from "../config/db";
+import { CreateUserTypeZ } from "../models/user.model";
 
-// export const createUser = async (data: Partial<Users>) => {
-//   const query =
-//     "INSERT INTO users (firstname, lastname, email, password) VALUES ($1, $2, $3, $4) RETURNING id, firstname, lastname, email, admin, created_at, updated_at";
-//   const encryptedPassword = await bcrypt.hash(data.password as string, 10);
-//   const values = [data.firstname, data.lastname, data.email, encryptedPassword];
-//   const result = await pool.query<Partial<Users>>(query, values);
-//   if (!result) throw new AppError("Failed to create user", 500);
-//   return result.rows[0];
-// };
+export const createUser = async (data: CreateUserTypeZ) => {
+  const existingUser = await prisma.user.findUnique({
+    where: { email: data.email },
+  });
+
+  if (existingUser) {
+    throw new AppError("An user with that email already exist", 409);
+  }
+
+  //*encrypt password
+  const hashedPassword = await bcrypt.hash(data.password, 12);
+
+  return prisma.user.create({
+    data: {
+      firstname: data.firstname,
+      lastname: data.lastname,
+      email: data.email,
+      password: hashedPassword,
+    },
+  });
+};
 
 export const getAllUsers = async () => {
-  const users = await prisma.user.findMany({
+  const users = prisma.user.findMany({
     select: {
       id: true,
       firstname: true,
       lastname: true,
       email: true,
+      created_at: true,
     },
   });
+
   return users;
 };
 
-// export const getUserById = async (id: string) => {
-//   const query =
-//     "SELECT id, firstname, lastname, email, admin, created_at, updated_at FROM users WHERE id = $1";
-//   const result = await pool.query<Partial<Users>>(query, [id]);
-//   if (!result) throw new AppError("User not found", 404);
+export const getUserById = async (id: number) => {
+  const user = await prisma.user.findUnique({
+    where: { id: id },
+    select: {
+      id: true,
+      firstname: true,
+      lastname: true,
+      email: true,
+      created_at: true,
+    },
+  });
 
-//   return result.rows[0] || null;
-// };
+  if (!user) {
+    throw new AppError("User not found", 404);
+  }
 
-// export const updateById = async (
-//   id: string,
-//   updateData: Partial<UserDocument>,
-// ) => {
-//   const updatedUser = await UserModel.findByIdAndUpdate(id, updateData, {
-//     new: true,
-//     runValidators: true,
-//   });
-//   if (!updatedUser) {
-//     throw new AppError("User with the provided ID not found", 404);
-//   }
-//   return updatedUser;
-// };
+  return user;
+};
 
-// export const deleteById = async (id: string) => {
-//   const deleteUser = await UserModel.findByIdAndDelete(id);
-//   if (!deleteUser) {
-//     throw new AppError("Couldn't delete it", 404);
-//   }
-//   return deleteUser;
-// };
+export const updateById = async (id: number, data: CreateUserTypeZ) => {
+  const updateUser = await prisma.user.update({
+    where: { id: id },
+    data: {
+      firstname: data.firstname,
+      lastname: data.lastname,
+      email: data.email,
+      password: data.password,
+    },
+  });
+  if (!updateUser) {
+    throw new AppError("User not found", 404);
+  }
 
-// export const updateUser = async (id: string, updateData: Partial<Users>) => {
-//   const fields = Object.keys(updateData);
-//   const values = Object.values(updateData);
+  return updateUser;
+};
 
-//   const setClause = fields
-//     .map((field, index) => `${field} = $${index + 1}`)
-//     .join(", ");
-//   const query = `UPDATE users SET ${setClause} WHERE id = ${id} RETURNING id, firstname, lastname, email, admin, created_at, updated_at`;
+export const deleteById = async (id: number) => {
+  const deleteUser = await prisma.user.delete({
+    where: { id: id },
+  });
 
-//   const result = await pool.query<Partial<Users>>(query, values);
-//   if (!result) throw new AppError("Failed to update user", 500);
-//   return result.rows[0];
-// };
+  if (!deleteUser) {
+    throw new AppError("User not found or already deleted", 404);
+  }
+
+  return deleteUser;
+};

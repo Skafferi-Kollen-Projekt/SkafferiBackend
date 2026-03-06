@@ -3,13 +3,13 @@ version: "3.8"
 services:
   db:
     image: postgres:17-alpine
-    container_name: postgres-db
+    container_name: te4-db
     restart: always
 
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: password
-      POSTGRES_DB: postgres-db
+      POSTGRES_USER: nirari.yaro
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: te4-db
 
     ports:
       - "5432:5432"
