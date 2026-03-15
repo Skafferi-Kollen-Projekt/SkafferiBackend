@@ -13,27 +13,44 @@ datasource db {
   provider = "postgresql"
 }
 
+enum StorageLocation {
+  KYL
+  FRYS
+  SKAFFERI
+}
+
 model User {
   id         Int       @id @default(autoincrement())
   email      String    @unique
   firstname  String
   lastname   String
-  created_at DateTime  @default(now())
-  updated_at DateTime?
   password   String
-  posts      Post[]
+  created_at DateTime  @default(now())
+  updated_at DateTime? @updatedAt
+  products   Product[]
 }
 
-model Post {
-  id         Int       @id @default(autoincrement())
-  author     User      @relation(fields: [authorId], references: [id])
-  authorId   Int
-  category   Category? @relation(fields: [categoryId], references: [id])
-  categoryId Int?
+model Product {
+  id         Int             @id @default(autoincrement())
+  name       String
+  quantity   Float           @default(1)
+  unit       String
+  expiryDate DateTime?
+  location   StorageLocation @default(SKAFFERI)
+
+  userId Int
+  user   User @relation(fields: [userId], references: [id])
+
+  categoryId Int
+  category   Category @relation(fields: [categoryId], references: [id])
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
 }
 
 model Category {
-  id    Int    @id @default(autoincrement())
-  name  String @unique
-  posts Post[]
+  id       Int       @id @default(autoincrement())
+  name     String    @unique
+  icon     String?
+  products Product[]
 }
