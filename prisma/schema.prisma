@@ -19,6 +19,13 @@ enum StorageLocation {
   SKAFFERI
 }
 
+enum AmountStatus {
+  EMPTY // ! Helt slut
+  LOW // ! Lite kvar räcker inte till alla
+  MEDIUM // ! Lagom, kan räcka men strikt
+  HIGH // ! Fullt, Räcker gott och väl
+}
+
 model User {
   id         Int       @id @default(autoincrement())
   email      String    @unique
@@ -31,15 +38,16 @@ model User {
 }
 
 model Product {
-  id         Int             @id @default(autoincrement())
-  name       String
-  quantity   Float           @default(1)
-  unit       String
-  expiryDate DateTime?
-  location   StorageLocation @default(SKAFFERI)
+  id           Int             @id @default(autoincrement())
+  name         String
+  quantity     Float           @default(1)
+  unit         String // ? t.ex "st", "g", "ml"
+  amountStatus AmountStatus    @default(HIGH)
+  expiryDate   DateTime?
+  location     StorageLocation @default(SKAFFERI)
 
   userId Int
-  user   User @relation(fields: [userId], references: [id])
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   categoryId Int
   category   Category @relation(fields: [categoryId], references: [id])
