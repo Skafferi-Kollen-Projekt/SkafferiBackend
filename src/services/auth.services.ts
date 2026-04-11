@@ -36,3 +36,40 @@ export const registerUserService = async (data: RegisterUserTypeZ) => {
   });
   return newUser;
 };
+
+// *  LOGIN AN EXISTING USER
+export const loginUserService = async (data: LoginUserTypeZ) => {
+  const user = await prisma.user.findUnique({
+    where: { email: data.email },
+  });
+
+  if (!user) {
+    throw new AppError("Invalid email or password", 401);
+  }
+
+  const isPasswordValid = await bcrypt.compare(data.password, user.password);
+
+  if (!isPasswordValid) {
+    throw new AppError("Invalid email or password", 401);
+  }
+
+  const tokenPayload = {
+    id: user.id,
+    email: user.email,
+    role: user.role,
+  };
+
+  const tokenOptions: SignOptions = {
+    expiresIn: "1d",
+  };
+
+  const token = jwt.sign(
+    tokenPayload,
+    process.env.JWT_SECRET as string,
+    tokenOptions,
+  );
+
+  const { password, ...userWithoutPassword } = user;
+
+  return { user: userWithoutPassword, token };
+};
