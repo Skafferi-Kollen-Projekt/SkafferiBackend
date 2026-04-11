@@ -26,12 +26,18 @@ enum AmountStatus {
   HIGH // ! Fullt, Räcker gott och väl
 }
 
+enum Role {
+  USER
+  ADMIN
+}
+
 model User {
   id         Int       @id @default(autoincrement())
   email      String    @unique
   firstname  String
   lastname   String
   password   String
+  role       Role      @default(USER)
   created_at DateTime  @default(now())
   updated_at DateTime? @updatedAt
   products   Product[]

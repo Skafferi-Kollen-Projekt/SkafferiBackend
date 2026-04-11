@@ -1,39 +1,60 @@
-// import { NextFunction, Request, Response } from "express";
-// import jwt, { JwtPayload } from "jsonwebtoken";
-// import { AppError } from "../utils/app.error";
-// // import { UserRole } from "../models/user.model";
+import { NextFunction, Request, Response } from "express";
+import jwt, { JwtPayload } from "jsonwebtoken";
+import { success } from "zod";
 
-// export const protect = async (
-//   req: Request,
-//   res: Response,
-//   next: NextFunction,
-// ) => {
-//   const token = req.headers.authorization?.split(" ")[1];
+declare global {
+  namespace Express {
+    interface Request {
+      user?: {
+        id: string;
+        email: string;
+        role: "USER" | "ADMIN";
+      };
+    }
+  }
+}
 
-//   if (!token) {
-//     throw new AppError("Unauthorized", 401);
-//   }
+export const protect = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    let token = req.headers.authorization?.split(" ")[1];
 
-//   try {
-//     const decoded = jwt.verify(token, process.env.JWT_SECRET!);
+    if (!token) {
+      return res
+        .status(401)
+        .json({ message: "Access denied. No token provided." });
+    }
+    const decoded = jwt.verify(
+      token,
+      process.env.JWT_SECRET as string,
+    ) as JwtPayload;
 
-//     const payload = decoded as JwtPayload;
+    req.user = {
+      id: decoded.id,
+      email: decoded.email,
+      role: decoded.role,
+    };
+    next();
+  } catch (error) {
+    console.error(error);
+    return res
+      .status(401)
+      .json({ message: "Access denied. Invalid or expired token." });
+  }
+};
 
-//     req.user = { id: payload.id, role: payload.role, email: payload.email };
-
-//     next();
-//   } catch (error) {
-//     next(error);
-//   }
-// };
-
-// export const restrictTo = (roles: UserRole) => {
-//   return (req: Request, res: Response, next: NextFunction) => {
-//     if (!req.user || !roles.includes(req.user.role)) {
-//       return res.status(403).json({
-//         message: "Forbidden. You do not have the required permissions",
-//       });
-//     }
-//     next();
-//   };
-// };
+export const restrictTo = (...roles: ("USER" | "ADMIN")[]) => {
+  return (req: Request, res: Response, next: NextFunction) => {
+    if (!req.user) {
+      return res.status(401).json({
+        success: false,
+        message:
+          "Forbidden. You do not have permission to perform this action.",
+      });
+    }
+    next();
+  };
+};
