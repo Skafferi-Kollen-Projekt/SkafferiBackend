@@ -29,7 +29,7 @@ export const createApp = () => {
   // !app.use("/api/users", userRoutes); finns inte än
 
   // ! CATCH_ALL (Om ingen route matchar, eller om det sker ett error i någon route)
-  app.all("*", (req: Request, res: Response, next: NextFunction) => {
+  app.use((req: Request, res: Response, next: NextFunction) => {
     next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));
   });
 
