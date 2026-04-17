@@ -1,5 +1,5 @@
 import { prisma } from "../config/db.js";
-import { Role } from "../generated/prisma";
+import { Role } from "@prisma/client";
 import { AppError } from "../utils/app.error.js";
 
 const userSelect = {
@@ -7,9 +7,9 @@ const userSelect = {
   firstname: true,
   lastname: true,
   email: true,
-  Role: Role,
-  createdAt: true,
-  updatedAt: true,
+  role: true,
+  created_at: true,
+  updated_at: true,
 };
 
 // * Get all users

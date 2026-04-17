@@ -3,13 +3,20 @@ import {
   registerUserController,
   loginUserController,
 } from "../controller/auth.controller.js";
+import { validate } from "../middleware/validate.middleware.js";
+import {
+  registerUserValidation,
+  loginUserValidation,
+} from "../schema/auth.schema.js";
 
 const router = Router();
 
-// * REGISTER A NEW USER
-router.post("/register", registerUserController);
+router.post(
+  "/register",
+  validate(registerUserValidation),
+  registerUserController,
+);
 
-// * LOGIN AN EXISTING USER
-router.post("/login", loginUserController);
+router.post("/login", validate(loginUserValidation), loginUserController);
 
 export default router;

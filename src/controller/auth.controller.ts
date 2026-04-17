@@ -1,5 +1,5 @@
 import type { Request, Response, NextFunction } from "express";
-import { RegisterUserTypeZ, LoginUserTypeZ } from "../schema/Auth.schema";
+import { RegisterUserTypeZ, LoginUserTypeZ } from "../schema/auth.schema";
 import {
   registerUserService,
   loginUserService,

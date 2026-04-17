@@ -2,7 +2,7 @@ import { prisma } from "../config/db.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { AppError } from "../utils/app.error.js";
-import { LoginUserTypeZ, RegisterUserTypeZ } from "../schema/Auth.schema.js";
+import { LoginUserTypeZ, RegisterUserTypeZ } from "../schema/auth.schema.js";
 import { SignOptions } from "jsonwebtoken";
 
 // * C - CREATE - REGISTER A NEW USER
