@@ -37,8 +37,11 @@ export const registerUserService = async (data: RegisterUserTypeZ) => {
   return newUser;
 };
 
-// *  LOGIN AN EXISTING USER
-export const loginUserService = async (data: LoginUserTypeZ) => {
+// * LOGIN AN EXISTING USER
+export const loginUserService = async (data: {
+  email: string;
+  password: string;
+}) => {
   const user = await prisma.user.findUnique({
     where: { email: data.email },
   });

@@ -3,8 +3,9 @@ import { RegisterUserTypeZ, LoginUserTypeZ } from "../schema/auth.schema";
 import {
   registerUserService,
   loginUserService,
-} from "../services/auth.services.js";
+} from "../services/auth.service.js";
 import { success } from "zod";
+import { AppError } from "../utils/app.error";
 
 // * REGISTER A NEW USER
 export const registerUserController = async (
@@ -33,23 +34,23 @@ export const registerUserController = async (
   }
 };
 
-// * LOGIN AN EXISTING USER
 export const loginUserController = async (
-  req: Request<{}, {}, LoginUserTypeZ>,
+  req: Request,
   res: Response,
   next: NextFunction,
 ) => {
   try {
     const data = req.body;
 
-    const result = await loginUserService(data);
-
-    if (!result) {
-      return res.status(401).json({
-        success: false,
-        message: "Invalid email or password",
-      });
+    if (!data?.email || !data?.password) {
+      return next(new AppError("Invalid email or password", 401));
     }
+
+    const result = await loginUserService({
+      email: data.email,
+      password: data.password,
+    });
+
     res.status(200).json({
       success: true,
       message: "User logged in successfully",
