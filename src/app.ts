@@ -3,9 +3,9 @@ import express, {
   type Response,
   type NextFunction,
 } from "express";
-import cors from "cors";
+//import cors from "cors";
 import authRoutes from "./routes/auth.routes.js";
-// !import userRoutes from "./routes/user.routes.js" finns inte än
+import userRoutes from "./routes/user.routes.js";
 import { errorHandler } from "./middleware/error.middleware.js";
 import { AppError } from "./utils/app.error.js";
 import { timeStamp } from "node:console";
@@ -14,7 +14,7 @@ export const createApp = () => {
   const app = express();
 
   // ! MIDDLEWARES
-  app.use(cors());
+  // app.use(cors());
   app.use(express.json());
 
   // ! HEALTH CHECK
@@ -26,7 +26,7 @@ export const createApp = () => {
 
   // ! ROUTES
   app.use("/api/auth", authRoutes);
-  // !app.use("/api/users", userRoutes); finns inte än
+  app.use("/api/users", userRoutes);
 
   // ! CATCH_ALL (Om ingen route matchar, eller om det sker ett error i någon route)
   app.use((req: Request, res: Response, next: NextFunction) => {

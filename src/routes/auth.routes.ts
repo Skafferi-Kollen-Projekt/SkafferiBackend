@@ -2,7 +2,7 @@ import { Router } from "express";
 import {
   registerUserController,
   loginUserController,
-} from "../controller/auth.controller.js";
+} from "../controllers/auth.controller.js";
 import { validate } from "../middleware/validate.middleware.js";
 import {
   registerUserValidation,
