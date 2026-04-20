@@ -3,17 +3,43 @@ import { StorageLocation, AmountStatus } from "@prisma/client";
 import { AppError } from "../utils/app.error.js";
 
 // * GET PRODUCT PER LOCATION
-export const getPantryItemByLocationService = async (
-  location: StorageLocation,
-  userId: number,
-) => {
-  return prisma.pantryItem.findMany({
-    where: {
-      userId,
-      location,
+export const getPantryItemByLocationService = async (data: {
+  userId: number;
+  location: StorageLocation;
+  page?: number;
+  limit?: number;
+}) => {
+  const page = data.page ?? 1;
+  const limit = data.limit ?? 20;
+  const skip = (page - 1) * limit;
+
+  const [items, total] = await prisma.$transaction([
+    prisma.pantryItem.findMany({
+      where: {
+        userId: data.userId,
+        location: data.location,
+      },
+      orderBy: [{ amountStatus: "asc" }, { created_at: "desc" }],
+      skip,
+      take: limit,
+    }),
+    prisma.pantryItem.count({
+      where: {
+        userId: data.userId,
+        location: data.location,
+      },
+    }),
+  ]);
+
+  return {
+    items,
+    pagination: {
+      page,
+      limit,
+      total,
+      totalPages: Math.ceil(total / limit),
     },
-    orderBy: [{ amountStatus: "asc" }, { created_at: "desc" }],
-  });
+  };
 };
 
 // * CREATE A NEW PANTRY ITEM IN ACTIVE LOCATION
