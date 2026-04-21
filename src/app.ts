@@ -9,6 +9,7 @@ import userRoutes from "./routes/user.routes.js";
 import { errorHandler } from "./middleware/error.middleware.js";
 import { AppError } from "./utils/app.error.js";
 import { timeStamp } from "node:console";
+import pantryRoutes from "./routes/pantry.routes.js";
 
 export const createApp = () => {
   const app = express();
@@ -27,6 +28,9 @@ export const createApp = () => {
   // ! ROUTES
   app.use("/api/auth", authRoutes);
   app.use("/api/users", userRoutes);
+
+  // ! PANTRY ROUTES
+  app.use("/api/pantry", pantryRoutes);
 
   // ! CATCH_ALL (Om ingen route matchar, eller om det sker ett error i någon route)
   app.use((req: Request, res: Response, next: NextFunction) => {
