@@ -2,18 +2,6 @@ import { NextFunction, Request, Response } from "express";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { success } from "zod";
 
-declare global {
-  namespace Express {
-    interface Request {
-      user?: {
-        id: string;
-        email: string;
-        role: "USER" | "ADMIN";
-      };
-    }
-  }
-}
-
 export const protect = async (
   req: Request,
   res: Response,
