@@ -5,6 +5,7 @@ export const getPantryItemsSchema = z.object({
   location: z.nativeEnum(StorageLocation),
   page: z.coerce.number().int().min(1).default(1),
   limit: z.coerce.number().int().min(1).max(100).default(20),
+  expiresInDays: z.coerce.number().min(1).max(100).default(20),
 });
 
 export const createPantryItemSchema = z.object({
@@ -14,7 +15,7 @@ export const createPantryItemSchema = z.object({
   expiryDate: z.string().datetime().optional(),
 });
 
-export const updatePantryStatusSchema = z
+export const updatePantryItemSchema = z
   .object({
     name: z.string().trim().min(1).optional(),
     amountStatus: z.nativeEnum(AmountStatus).optional(),

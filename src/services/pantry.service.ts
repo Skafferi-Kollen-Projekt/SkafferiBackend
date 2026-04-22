@@ -1,6 +1,7 @@
 import { prisma } from "../config/db.js";
 import { StorageLocation, AmountStatus } from "@prisma/client";
 import { AppError } from "../utils/app.error.js";
+import { string } from "zod";
 
 // * GET PRODUCT PER LOCATION
 export const getPantryItemByLocationService = async (data: {
@@ -30,6 +31,27 @@ export const getPantryItemByLocationService = async (data: {
       },
     }),
   ]);
+  const now = new Date();
+
+  const itemsWithExpiryInfo = items.map((item) => {
+    if (!item.expiryDate) {
+      return { ...item, expiryInfo: null };
+    }
+
+    const daysLeft = Math.ceil(
+      (item.expiryDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24),
+    );
+
+    return {
+      ...item,
+      expiryInfo: {
+        daysLeft,
+        isExpired: daysLeft < 0,
+        isExpiringSoon: daysLeft >= 0 && daysLeft <= 3,
+        isWarning: daysLeft > 3 && daysLeft <= 7,
+      },
+    };
+  });
 
   return {
     items,
@@ -47,7 +69,7 @@ export const createPantryItemService = async (data: {
   userId: number;
   name: string;
   location: StorageLocation;
-  categoryid?: number;
+  categoryId?: number;
   expiryDate?: Date;
 }) => {
   if (!data.name.trim()) {
@@ -58,7 +80,7 @@ export const createPantryItemService = async (data: {
     data: {
       name: data.name,
       location: data.location,
-      categoryId: data.categoryid,
+      categoryId: data.categoryId,
       expiryDate: data.expiryDate,
       userId: data.userId,
     },
@@ -66,21 +88,26 @@ export const createPantryItemService = async (data: {
 };
 
 // * UPDATE THE STATUS OF A PANTRY ITEM FEAT: FAST UPDATE
-export const updatePantryItemStatusService = async (data: {
+export const updatePantryItemService = async (data: {
   userId: number;
   itemId: number;
-  status: AmountStatus;
+  update: {
+    name?: string;
+    amountStatus?: AmountStatus;
+    quantity?: number;
+    unit?: string;
+    expiryDate?: Date;
+    location?: StorageLocation;
+    categoryId?: number;
+  };
 }) => {
   const result = await prisma.pantryItem.updateMany({
     where: {
       id: data.itemId,
       userId: data.userId,
     },
-    data: {
-      amountStatus: data.status,
-    },
+    data: data.update,
   });
-
   if (result.count === 0) {
     throw new AppError("Product not found", 404);
   }
