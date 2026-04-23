@@ -47,7 +47,7 @@ export const createPantryItemController = async (
       name: body.input,
       location: body.location,
       categoryId: body.categoryId,
-      expiryDate: body.expiryDate ? new Date(body.expiryDate) : undefined,
+      expiryDate: body.expiryDate,
     });
     res.status(201).json(item);
   } catch (error) {

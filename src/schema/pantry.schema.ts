@@ -12,7 +12,7 @@ export const createPantryItemSchema = z.object({
   input: z.string().trim().min(1),
   location: z.nativeEnum(StorageLocation),
   categoryId: z.number().int().positive().optional(),
-  expiryDate: z.string().datetime().optional(),
+  expiryDate: z.coerce.date().optional(),
 });
 
 export const updatePantryItemSchema = z

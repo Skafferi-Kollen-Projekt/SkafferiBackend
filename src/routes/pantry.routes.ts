@@ -18,7 +18,7 @@ router.get("/", getPantryItemsByLocationController);
 router.post("/", createPantryItemController);
 
 // * Update pantry item status (e.g., mark as used or expired)
-router.patch("/:id/", updatePantryItemController);
+router.patch("/:id", updatePantryItemController);
 
 // * Delete a pantry item
 router.delete("/:id", deletePantryItemController);
