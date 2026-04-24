@@ -1,15 +1,20 @@
 import { z } from "zod";
 import { StorageLocation, AmountStatus } from "@prisma/client";
 
-export const getPantryItemsSchema = z.object({
-  location: z.nativeEnum(StorageLocation),
-  page: z.coerce.number().int().min(1).default(1),
-  limit: z.coerce.number().int().min(1).max(100).default(20),
-  expiresInDays: z.coerce.number().min(1).max(100).default(20),
-});
+export const getPantryItemsSchema = z
+  .object({
+    location: z.nativeEnum(StorageLocation),
+    page: z.coerce.number().int().min(1).default(1),
+    limit: z.coerce.number().int().min(1).max(100).default(20),
+    expiresInDays: z.coerce.number().int().min(1).max(100).optional(),
+  })
+  .strict();
 
 export const createPantryItemSchema = z.object({
-  input: z.string().trim().min(1),
+  input: z
+    .string()
+    .trim()
+    .min(3, "Product name must be at least 3 characters long"),
   location: z.nativeEnum(StorageLocation),
   categoryId: z.number().int().positive().optional(),
   expiryDate: z.coerce.date().optional(),
@@ -17,7 +22,11 @@ export const createPantryItemSchema = z.object({
 
 export const updatePantryItemSchema = z
   .object({
-    name: z.string().trim().min(1).optional(),
+    name: z
+      .string()
+      .trim()
+      .min(2, "Product name must be at least 2 characters long")
+      .optional(),
     amountStatus: z.nativeEnum(AmountStatus).optional(),
     quantity: z.number().positive().optional(),
     unit: z.string().trim().optional(),

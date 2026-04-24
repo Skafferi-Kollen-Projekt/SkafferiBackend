@@ -12,7 +12,7 @@ datasource db {
 }
 
 enum StorageLocation {
-  KYL
+  KYLSKÅP
   FRYS
   SKAFFERI
 }
