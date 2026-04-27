@@ -44,7 +44,7 @@ export const createPantryItemController = async (
     const body = createPantryItemSchema.parse(req.body);
     const item = await createPantryItemService({
       userId,
-      name: body.input,
+      name: body.name,
       location: body.location,
       categoryId: body.categoryId,
       expiryDate: body.expiryDate,

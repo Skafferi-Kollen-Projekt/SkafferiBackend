@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { date, z } from "zod";
 import { StorageLocation, AmountStatus } from "@prisma/client";
 
 export const getPantryItemsSchema = z
@@ -11,13 +11,26 @@ export const getPantryItemsSchema = z
   .strict();
 
 export const createPantryItemSchema = z.object({
-  input: z
+  name: z
     .string()
     .trim()
     .min(3, "Product name must be at least 3 characters long"),
   location: z.nativeEnum(StorageLocation),
   categoryId: z.number().int().positive().optional(),
-  expiryDate: z.coerce.date().optional(),
+
+  expiryDate: z.coerce
+    .date()
+    .refine(
+      (date) => {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        return date >= today;
+      },
+      {
+        message: "Expiry date cannot be in the past",
+      },
+    )
+    .optional(),
 });
 
 export const updatePantryItemSchema = z
@@ -30,7 +43,19 @@ export const updatePantryItemSchema = z
     amountStatus: z.nativeEnum(AmountStatus).optional(),
     quantity: z.number().positive().optional(),
     unit: z.string().trim().optional(),
-    expiryDate: z.coerce.date().optional(),
+    expiryDate: z.coerce
+      .date()
+      .refine(
+        (date) => {
+          const today = new Date();
+          today.setHours(0, 0, 0, 0);
+          return date >= today;
+        },
+        {
+          message: "Expiry date cannot be in the past",
+        },
+      )
+      .optional(),
     location: z.nativeEnum(StorageLocation).optional(),
     categoryId: z.number().int().positive().optional(),
   })
