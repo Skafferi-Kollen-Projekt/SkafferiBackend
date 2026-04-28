@@ -6,10 +6,10 @@ export const registerUserValidation = z.object({
     .object({
       firstname: z
         .string()
-        .min(4, "First name must be at least 4 characters long"),
+        .min(2, "First name must be at least 2 characters long"),
       lastname: z
         .string()
-        .min(4, "Last name must be at least 4 characters long"),
+        .min(2, "Last name must be at least 2 characters long"),
       email: z.string().email("Invalid email address"),
       password: z
         .string()
@@ -19,7 +19,7 @@ export const registerUserValidation = z.object({
 });
 
 // * Validation for logging in an existing user
-// * Validation for logging in an existing user
+
 export const loginUserValidation = z.object({
   body: z
     .object({
