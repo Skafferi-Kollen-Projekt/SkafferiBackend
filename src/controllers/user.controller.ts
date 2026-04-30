@@ -27,8 +27,19 @@ export const getUserByIdController = async (
   next: NextFunction,
 ) => {
   try {
-    const id = Number(req.params.id);
-    const user = await getUserByIdService(id);
+    const requestUserId = Number(req.params.id);
+    const loggedInUser = req.user;
+
+    if (loggedInUser.role !== "ADMIN" && loggedInUser.id !== requestUserId) {
+      return res
+        .status(403)
+        .json({ message: "You are not allowed to access this resource" });
+    }
+    const user = await getUserByIdService(requestUserId);
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
     res.status(200).json(user);
   } catch (error) {
     next(error);
@@ -42,9 +53,14 @@ export const updateUserByIdController = async (
   next: NextFunction,
 ) => {
   try {
-    const id = Number(req.params.id);
-    const updatedUser = await updateuserByIdService(id, req.body);
-    res.status(200).json(updatedUser);
+    const requestUserid = Number(req.params.id);
+    const loggedInUser = req.user;
+
+    if (loggedInUser.role !== "ADMIN" && loggedInUser.id !== requestUserid) {
+      return res
+        .status(403)
+        .json({ message: "You are not allowed to access this resource" });
+    }
   } catch (error) {
     next(error);
   }

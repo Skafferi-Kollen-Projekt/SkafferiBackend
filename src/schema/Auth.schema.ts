@@ -19,12 +19,11 @@ export const registerUserValidation = z.object({
 });
 
 // * Validation for logging in an existing user
-
 export const loginUserValidation = z.object({
   body: z
     .object({
-      email: z.string().email(),
-      password: z.string(),
+      email: z.string().email("Wrong email format"),
+      password: z.string("Wrong password").min(8, "8 characters required"),
     })
     .strict(),
 });
