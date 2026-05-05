@@ -28,5 +28,26 @@ export const loginUserValidation = z.object({
     .strict(),
 });
 
+export const updateUserValidation = z.object({
+  body: z
+    .object({
+      firstname: z
+        .string()
+        .min(2, "First name must be at least 2 characters long")
+        .optional(),
+      lastname: z
+        .string()
+        .min(2, "Last name must be at least 2 characters long")
+        .optional(),
+      email: z.string().email("Invalid email address").optional(),
+      password: z
+        .string()
+        .min(8, "Password must be at least 8 characters long")
+        .optional(),
+    })
+    .strict(),
+});
+
 export type RegisterUserTypeZ = z.infer<typeof registerUserValidation>["body"];
 export type LoginUserTypeZ = z.infer<typeof loginUserValidation>["body"];
+export type UpdateUserTypeZ = z.infer<typeof updateUserValidation>["body"];

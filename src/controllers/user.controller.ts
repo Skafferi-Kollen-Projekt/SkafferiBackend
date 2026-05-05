@@ -37,9 +37,6 @@ export const getUserByIdController = async (
     }
     const user = await getUserByIdService(requestUserId);
 
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
     res.status(200).json(user);
   } catch (error) {
     next(error);
@@ -59,8 +56,12 @@ export const updateUserByIdController = async (
     if (loggedInUser.role !== "ADMIN" && loggedInUser.id !== requestUserid) {
       return res
         .status(403)
-        .json({ message: "You are not allowed to access this resource" });
+        .json({ message: "You are not allowed to update this user" });
     }
+
+    const updatedUser = await updateuserByIdService(requestUserid, req.body);
+
+    res.status(200).json(updatedUser);
   } catch (error) {
     next(error);
   }
@@ -73,9 +74,17 @@ export const deleteUserByIdController = async (
   next: NextFunction,
 ) => {
   try {
-    const id = Number(req.params.id);
-    const deletedUser = await deleteUserByIdService(id);
-    res.status(200).json(deletedUser);
+    const requestedUserId = Number(req.params.id);
+    const loggedInUser = req.user;
+
+    if (loggedInUser.role !== "ADMIN" && loggedInUser.id !== requestedUserId) {
+      return res
+        .status(403)
+        .json({ message: "You are not allowed to delete this user" });
+    }
+
+    await deleteUserByIdService(requestedUserId);
+    res.status(204).send();
   } catch (error) {
     next(error);
   }

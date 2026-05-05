@@ -1,7 +1,8 @@
 import { prisma } from "../config/db.js";
 import { Role } from "@prisma/client";
 import { AppError } from "../utils/app.error.js";
-
+import { UpdateUserTypeZ } from "../schema/auth.schema.js";
+import bcrypt from "bcrypt";
 const userSelect = {
   id: true,
   firstname: true,
@@ -35,17 +36,24 @@ export const getUserByIdService = async (id: number) => {
 // * Update user by id
 export const updateuserByIdService = async (
   id: number,
-  data: { firstname?: string; lastname?: string },
+  data: UpdateUserTypeZ,
 ) => {
   const existingUser = await prisma.user.findUnique({ where: { id } });
 
   if (!existingUser) {
     throw new AppError("User not found", 404);
   }
-
+  const hashedpassword = data.password
+    ? await bcrypt.hash(data.password, 10)
+    : undefined;
   const updatedUser = await prisma.user.update({
     where: { id },
-    data,
+    data: {
+      firstname: data.firstname,
+      lastname: data.lastname,
+      email: data.email,
+      password: hashedpassword,
+    },
     select: userSelect,
   });
 
