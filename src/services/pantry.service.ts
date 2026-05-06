@@ -2,6 +2,7 @@ import { prisma } from "../config/db.js";
 import { StorageLocation, AmountStatus } from "@prisma/client";
 import { AppError } from "../utils/app.error.js";
 import { string } from "zod";
+import id from "zod/v4/locales/id.js";
 
 // * GET PRODUCT PER LOCATION
 export const getPantryItemByLocationService = async (data: {
@@ -54,7 +55,7 @@ export const getPantryItemByLocationService = async (data: {
   });
 
   return {
-    items,
+    items: itemsWithExpiryInfo,
     pagination: {
       page,
       limit,
@@ -74,6 +75,16 @@ export const createPantryItemService = async (data: {
 }) => {
   if (!data.name.trim()) {
     throw new AppError("Product name is required", 400);
+  }
+
+  if (data.categoryId) {
+    const categoryExists = await prisma.category.findUnique({
+      where: { id: data.categoryId },
+    });
+
+    if (!categoryExists) {
+      throw new AppError("Category not found", 404);
+    }
   }
 
   return prisma.pantryItem.create({
@@ -101,16 +112,54 @@ export const updatePantryItemService = async (data: {
     categoryId?: number;
   };
 }) => {
-  const result = await prisma.pantryItem.updateMany({
+  const { userId, itemId, update } = data;
+
+  const existingItem = await prisma.pantryItem.findFirst({
     where: {
-      id: data.itemId,
-      userId: data.userId,
+      id: itemId,
+      userId: userId,
     },
-    data: data.update,
   });
-  if (result.count === 0) {
+
+  if (!existingItem) {
     throw new AppError("Product not found", 404);
   }
+
+  if (update.categoryId) {
+    const categoryExists = await prisma.category.findUnique({
+      where: { id: update.categoryId },
+    });
+
+    if (!categoryExists) {
+      throw new AppError("Category not found", 404);
+    }
+  }
+
+  const updatedItem = await prisma.pantryItem.update({
+    where: { id: itemId },
+    data: {
+      name: update.name,
+      amountStatus: update.amountStatus,
+      quantity: update.quantity,
+      unit: update.unit,
+      expiryDate: update.expiryDate,
+      location: update.location,
+      categoryId: update.categoryId,
+    },
+    select: {
+      id: true,
+      name: true,
+      amountStatus: true,
+      quantity: true,
+      unit: true,
+      expiryDate: true,
+      location: true,
+      categoryId: true,
+      created_at: true,
+      updated_at: true,
+    },
+  });
+  return updatedItem;
 };
 
 // * DELETE A PANTRY ITEM

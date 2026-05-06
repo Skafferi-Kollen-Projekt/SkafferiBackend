@@ -65,14 +65,15 @@ export const updatePantryItemController = async (
     const userId = req.user.id;
     const itemId = Number(req.params.id);
     const body = updatePantryItemSchema.parse(req.body);
-
-    await updatePantryItemService({
+    const updatedItem = await updatePantryItemService({
       userId,
       itemId,
       update: body,
     });
-    res.status(200).send();
+
+    res.status(200).json(updatedItem);
   } catch (error) {
+    console.error("PATCH PANTRY ERROR:", error);
     next(error);
   }
 };

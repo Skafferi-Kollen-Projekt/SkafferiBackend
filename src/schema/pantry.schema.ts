@@ -10,25 +10,32 @@ export const getPantryItemsSchema = z
   })
   .strict();
 
-export const createPantryItemSchema = z.object({
-  name: z
-    .string()
-    .trim()
-    .min(3, "Product name must be at least 3 characters long"),
-  location: z.nativeEnum(StorageLocation),
-  categoryId: z.number().int().positive(),
+export const createPantryItemSchema = z
+  .object({
+    name: z
+      .string()
+      .trim()
+      .min(2, "Product name must be at least 2 characters long"),
 
-  expiryDate: z.coerce.date().refine(
-    (date) => {
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      return date >= today;
-    },
-    {
-      message: "Expiry date cannot be in the past",
-    },
-  ),
-});
+    location: z.nativeEnum(StorageLocation),
+
+    categoryId: z.number().int().positive().optional(),
+
+    expiryDate: z.coerce
+      .date()
+      .refine(
+        (date) => {
+          const today = new Date();
+          today.setHours(0, 0, 0, 0);
+          return date >= today;
+        },
+        {
+          message: "Expiry date cannot be in the past",
+        },
+      )
+      .optional(),
+  })
+  .strict();
 
 export const updatePantryItemSchema = z
   .object({
