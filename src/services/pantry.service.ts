@@ -102,6 +102,7 @@ export const createPantryItemService = async (data: {
 export const updatePantryItemService = async (data: {
   userId: number;
   itemId: number;
+  isAdmin?: boolean;
   update: {
     name?: string;
     amountStatus?: AmountStatus;
@@ -112,13 +113,21 @@ export const updatePantryItemService = async (data: {
     categoryId?: number;
   };
 }) => {
-  const { userId, itemId, update } = data;
+  const { userId, itemId, update, isAdmin } = data;
+
+  const where: {
+    id: number;
+    userId?: number;
+  } = {
+    id: itemId,
+  };
+
+  if (!isAdmin) {
+    where.userId = userId;
+  }
 
   const existingItem = await prisma.pantryItem.findFirst({
-    where: {
-      id: itemId,
-      userId: userId,
-    },
+    where,
   });
 
   if (!existingItem) {
@@ -166,14 +175,30 @@ export const updatePantryItemService = async (data: {
 export const deletePantryItemService = async (data: {
   userId: number;
   itemId: number;
+  isAdmin?: boolean;
 }) => {
-  const result = await prisma.pantryItem.deleteMany({
-    where: {
-      id: data.itemId,
-      userId: data.userId,
-    },
+  const { userId, itemId, isAdmin = false } = data;
+
+  const where: {
+    id: number;
+    userId?: number;
+  } = {
+    id: itemId,
+  };
+
+  if (!isAdmin) {
+    where.userId = userId;
+  }
+
+  const existingItem = await prisma.pantryItem.findFirst({
+    where,
   });
-  if (result.count === 0) {
+
+  if (!existingItem) {
     throw new AppError("Product not found", 404);
   }
+
+  await prisma.pantryItem.delete({
+    where: { id: itemId },
+  });
 };

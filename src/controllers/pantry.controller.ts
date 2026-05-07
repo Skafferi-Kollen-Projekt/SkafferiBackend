@@ -10,6 +10,7 @@ import {
   updatePantryItemService,
   deletePantryItemService,
 } from "../services/pantry.service";
+import { AppError } from "../utils/app.error";
 
 // * Get pantry items by location
 export const getPantryItemsByLocationController = async (
@@ -64,11 +65,17 @@ export const updatePantryItemController = async (
   try {
     const userId = req.user.id;
     const itemId = Number(req.params.id);
+
+    if (!Number.isFinite(itemId)) {
+      throw new AppError("Invalid pantry item ID", 400);
+    }
+
     const body = updatePantryItemSchema.parse(req.body);
     const updatedItem = await updatePantryItemService({
       userId,
       itemId,
       update: body,
+      isAdmin: req.user.role === "ADMIN",
     });
 
     res.status(200).json(updatedItem);
@@ -85,11 +92,17 @@ export const deletePantryItemController = async (
   next: NextFunction,
 ) => {
   try {
-    const userId = req.user.id;
+    const { id: userId, role } = req.user;
     const itemId = Number(req.params.id);
+
+    if (!Number.isFinite(itemId)) {
+      throw new AppError("Invalid pantry item ID", 400);
+    }
+
     await deletePantryItemService({
       userId,
       itemId,
+      isAdmin: role === "ADMIN",
     });
     res.status(204).send();
   } catch (error) {
