@@ -10,9 +10,11 @@ import userRoutes from "./routes/user.routes.js";
 import pantryRoutes from "./routes/pantry.routes.js";
 import { errorHandler } from "./middleware/error.middleware.js";
 import { AppError } from "./utils/app.error.js";
+import cookieParser from "cookie-parser";
 
 export const createApp = () => {
   const app = express();
+  app.use(cookieParser());
 
   const allowedOrigins = new Set([
     "http://localhost:5173", // Vite dev

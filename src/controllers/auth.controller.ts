@@ -1,11 +1,34 @@
 import type { Request, Response, NextFunction } from "express";
-import { RegisterUserTypeZ, LoginUserTypeZ } from "../schema/auth.schema";
+import type { RegisterUserTypeZ, LoginUserTypeZ } from "../schema/auth.schema";
 import {
   registerUserService,
   loginUserService,
 } from "../services/auth.service.js";
 import { success } from "zod";
 import { AppError } from "../utils/app.error";
+
+const COOKIE_NAME = "access_tooken";
+
+const setAuthCookie = (res: Response, token: string) => {
+  const isProduction = process.env.NODE_ENV === "production";
+
+  res.cookie(COOKIE_NAME, token, {
+    httpOnly: true,
+    secure: isProduction,
+    sameSite: "lax",
+    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 dagar
+  });
+};
+
+const clearAuthCookie = (res: Response) => {
+  const isProduction = process.env.NODE_ENV === "production";
+
+  res.clearCookie(COOKIE_NAME, {
+    httpOnly: true,
+    secure: isProduction,
+    sameSite: "lax",
+  });
+};
 
 // * REGISTER A NEW USER
 export const registerUserController = async (
@@ -51,13 +74,23 @@ export const loginUserController = async (
       password: data.password,
     });
 
+    setAuthCookie(res, result.token);
+
     res.status(200).json({
       success: true,
       message: "User logged in successfully",
-      token: result.token,
       data: result.user,
     });
   } catch (error) {
     next(error);
   }
+};
+
+export const logoutUserController = async (req: Request, res: Response) => {
+  clearAuthCookie(res);
+
+  return res.status(200).json({
+    success: true,
+    message: "User logged out successfully",
+  });
 };
