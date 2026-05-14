@@ -89,3 +89,18 @@ export const deleteUserByIdController = async (
     next(error);
   }
 };
+
+export const updateMeController = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const loggedInUser = req.user;
+
+    const updatedUser = await updateuserByIdService(loggedInUser.id, req.body);
+    res.status(200).json(updatedUser);
+  } catch (error) {
+    next(error);
+  }
+};
