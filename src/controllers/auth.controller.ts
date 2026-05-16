@@ -7,7 +7,7 @@ import {
 import { success } from "zod";
 import { AppError } from "../utils/app.error";
 
-const COOKIE_NAME = "access_tooken";
+const COOKIE_NAME = "access_token";
 
 const setAuthCookie = (res: Response, token: string) => {
   const isProduction = process.env.NODE_ENV === "production";
@@ -23,7 +23,13 @@ const setAuthCookie = (res: Response, token: string) => {
 const clearAuthCookie = (res: Response) => {
   const isProduction = process.env.NODE_ENV === "production";
 
-  res.clearCookie(COOKIE_NAME, {
+  res.clearCookie("access_token", {
+    httpOnly: true,
+    secure: isProduction,
+    sameSite: "lax",
+  });
+
+  res.clearCookie("access_tooken", {
     httpOnly: true,
     secure: isProduction,
     sameSite: "lax",

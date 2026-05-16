@@ -104,3 +104,20 @@ export const updateMeController = async (
     next(error);
   }
 };
+
+// * GET LOGGED IN USER (ME)
+export const getMeController = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const loggedInUser = req.user;
+
+    const user = await getUserByIdService(loggedInUser.id);
+
+    res.status(200).json(user);
+  } catch (error) {
+    next(error);
+  }
+};

@@ -15,12 +15,10 @@ export const protect = (req: Request, res: Response, next: NextFunction) => {
   try {
     let token: string | undefined;
 
-   
     if (typeof req.cookies?.[COOKIE_NAME] === "string") {
       token = req.cookies[COOKIE_NAME];
     }
 
-    
     if (!token) {
       const authHeader = req.headers.authorization;
       if (authHeader?.startsWith("Bearer ")) {
@@ -37,7 +35,6 @@ export const protect = (req: Request, res: Response, next: NextFunction) => {
       process.env.JWT_SECRET as string,
     ) as JwtPayload;
 
-   
     const userId = Number(decoded.id);
 
     if (!Number.isInteger(userId)) {
@@ -45,7 +42,7 @@ export const protect = (req: Request, res: Response, next: NextFunction) => {
     }
 
     req.user = {
-      id: userId, 
+      id: userId,
       email: decoded.email,
       role: decoded.role,
     };

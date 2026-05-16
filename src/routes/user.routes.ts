@@ -5,6 +5,7 @@ import {
   updateUserByIdController,
   deleteUserByIdController,
   updateMeController,
+  getMeController,
 } from "../controllers/user.controller.js";
 import { protect, restrictTo } from "../middleware/auth.middleware.js";
 import { validate } from "../middleware/validate.middleware.js";
@@ -14,16 +15,14 @@ const router = Router();
 
 router.use(protect);
 
-// * ONLY ADMIN
+router.get("/me", getMeController);
+
+// admin
 router.get("/", restrictTo("ADMIN"), getAllUsersController);
 
-router.patch("/me", validate(updateUserValidation), updateMeController);
-
-// * LOGGED IN USER or ADMIN
+// id‑routes
 router.get("/:id", getUserByIdController);
-
 router.patch("/:id", validate(updateUserValidation), updateUserByIdController);
-
 router.delete("/:id", deleteUserByIdController);
 
 export default router;
