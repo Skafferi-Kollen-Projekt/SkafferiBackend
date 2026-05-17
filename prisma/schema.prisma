@@ -39,7 +39,8 @@ model User {
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 
-  pantryItems PantryItem[]
+  pantryItems     PantryItem[]
+  supportMessages SupportMessage[]
 }
 
 model PantryItem {
@@ -69,4 +70,16 @@ model Category {
   icon String?
 
   pantryItems PantryItem[]
+}
+
+model SupportMessage {
+  id      Int    @id @default(autoincrement())
+  message String
+
+  userId Int
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  created_at DateTime @default(now())
+
+  @@index([userId])
 }
