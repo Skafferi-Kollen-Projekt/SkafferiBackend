@@ -8,6 +8,7 @@ import cors from "cors";
 import authRoutes from "./routes/auth.routes.js";
 import userRoutes from "./routes/user.routes.js";
 import pantryRoutes from "./routes/pantry.routes.js";
+import supportRoutes from "./routes/support.routes.js";
 import { errorHandler } from "./middleware/error.middleware.js";
 import { AppError } from "./utils/app.error.js";
 import cookieParser from "cookie-parser";
@@ -38,7 +39,7 @@ export const createApp = () => {
     }),
   );
 
-  // Preflight för alla routes (viktigt för PATCH/DELETE i browsern)
+  //  För alla routes (viktigt för PATCH/DELETE i browsern) för att request att det går genom.
   app.options(/.*/, cors());
 
   app.use(express.json());
@@ -53,6 +54,7 @@ export const createApp = () => {
   app.use("/api/auth", authRoutes);
   app.use("/api/users", userRoutes);
   app.use("/api/pantry", pantryRoutes);
+  app.use("/api/support", supportRoutes);
 
   app.use((req: Request, res: Response, next: NextFunction) => {
     next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));
