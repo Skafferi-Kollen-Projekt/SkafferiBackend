@@ -38,22 +38,35 @@ export const updateuserByIdService = async (
   id: number,
   data: UpdateUserTypeZ,
 ) => {
-  const existingUser = await prisma.user.findUnique({ where: { id } });
+  const existingUser = await prisma.user.findUnique({
+    where: { id },
+  });
 
   if (!existingUser) {
     throw new AppError("User not found", 404);
   }
-  const hashedpassword = data.password
-    ? await bcrypt.hash(data.password, 10)
-    : undefined;
+
+  const updateData: Partial<UpdateUserTypeZ & { password: string }> = {};
+
+  if (data.firstname !== undefined) {
+    updateData.firstname = data.firstname;
+  }
+
+  if (data.lastname !== undefined) {
+    updateData.lastname = data.lastname;
+  }
+
+  if (data.email !== undefined) {
+    updateData.email = data.email;
+  }
+
+  if (data.password) {
+    updateData.password = await bcrypt.hash(data.password, 10);
+  }
+
   const updatedUser = await prisma.user.update({
     where: { id },
-    data: {
-      firstname: data.firstname,
-      lastname: data.lastname,
-      email: data.email,
-      password: hashedpassword,
-    },
+    data: updateData,
     select: userSelect,
   });
 
