@@ -121,3 +121,25 @@ export const getMeController = async (
     next(error);
   }
 };
+
+export const deleteMeController = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const loggedInUser = req.user;
+    const { email } = req.body;
+
+    if (!email || email !== loggedInUser.email) {
+      return res.status(400).json({
+        message: "Email confirmation does not match logged in user",
+      });
+    }
+    await deleteUserByIdService(loggedInUser.id);
+
+    res.status(204).send();
+  } catch (error) {
+    next(error);
+  }
+};
