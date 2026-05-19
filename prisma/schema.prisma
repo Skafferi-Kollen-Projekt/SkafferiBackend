@@ -46,7 +46,7 @@ model User {
 model PantryItem {
   id           Int             @id @default(autoincrement())
   name         String
-  amountStatus AmountStatus    @default(MEDIUM)
+  amountStatus AmountStatus    @default(LOW)
   quantity     Float?
   unit         String?
   expiryDate   DateTime?
