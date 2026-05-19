@@ -53,14 +53,15 @@ export const getPantryItemByLocationService = async (data: {
       },
     };
   });
-
+  const totalPages = Math.ceil(total / limit);
   return {
     items: itemsWithExpiryInfo,
     pagination: {
       page,
       limit,
       total,
-      totalPages: Math.ceil(total / limit),
+      totalPages,
+      hasMore: page < totalPages,
     },
   };
 };
