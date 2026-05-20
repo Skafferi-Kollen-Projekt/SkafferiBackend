@@ -148,13 +148,15 @@ export const updatePantryItemService = async (data: {
   const updatedItem = await prisma.pantryItem.update({
     where: { id: itemId },
     data: {
-      name: update.name,
-      amountStatus: update.amountStatus,
-      quantity: update.quantity,
-      unit: update.unit,
-      expiryDate: update.expiryDate,
-      location: update.location,
-      categoryId: update.categoryId,
+      ...(update.name !== undefined && { name: update.name }),
+      ...(update.amountStatus !== undefined && {
+        amountStatus: update.amountStatus,
+      }),
+      ...(update.quantity !== undefined && { quantity: update.quantity }),
+      ...(update.unit !== undefined && { unit: update.unit }),
+      ...(update.expiryDate !== undefined && { expiryDate: update.expiryDate }),
+      ...(update.location !== undefined && { location: update.location }),
+      ...(update.categoryId !== undefined && { categoryId: update.categoryId }),
     },
     select: {
       id: true,
