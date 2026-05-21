@@ -21,6 +21,15 @@ export const getPantryItemByLocationService = async (data: {
         userId: data.userId,
         location: data.location,
       },
+      include: {
+        category: {
+          select: {
+            id: true,
+            name: true,
+            icon: true,
+          },
+        },
+      },
       orderBy: [{ amountStatus: "asc" }, { created_at: "desc" }],
       skip,
       take: limit,
