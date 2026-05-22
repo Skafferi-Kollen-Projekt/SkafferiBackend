@@ -97,9 +97,29 @@ export const updateMeController = async (
 ) => {
   try {
     const loggedInUser = req.user;
+    const { email } = req.body;
+
+    const emailChanged =
+      email && email.toLowerCase() !== loggedInUser.email.toLowerCase();
 
     const updatedUser = await updateuserByIdService(loggedInUser.id, req.body);
-    res.status(200).json(updatedUser);
+
+    if (emailChanged) {
+      res.clearCookie("access_token", {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+      });
+
+      return res.status(200).json({
+        message: "EMAIL_CHANGED_LOGOUT_REQUIRED",
+      });
+    }
+
+    res.status(200).json({
+      message: "PROFILE_UPDATED",
+      user: updatedUser,
+    });
   } catch (error) {
     next(error);
   }
