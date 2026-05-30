@@ -32,24 +32,27 @@ export const getPantryItemByLocationService = async (data: {
       },
     }),
   ]);
-  const now = new Date();
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
 
   const itemsWithExpiryInfo = items.map((item) => {
     if (!item.expiryDate) {
       return { ...item, expiryInfo: null };
     }
 
-    const daysLeft = Math.ceil(
-      (item.expiryDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24),
-    );
+    const expiry = new Date(item.expiryDate);
+    expiry.setHours(0, 0, 0, 0);
+
+    const diffTime = expiry.getTime() - today.getTime();
+    const daysLeft = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
     return {
       ...item,
       expiryInfo: {
         daysLeft,
         isExpired: daysLeft < 0,
-        isExpiringSoon: daysLeft >= 0 && daysLeft <= 3,
-        isWarning: daysLeft > 3 && daysLeft <= 7,
+        isExpiringSoon: daysLeft >= 0 && daysLeft <= 2,
+        isWarning: daysLeft >= 0 && daysLeft <= 5,
       },
     };
   });
